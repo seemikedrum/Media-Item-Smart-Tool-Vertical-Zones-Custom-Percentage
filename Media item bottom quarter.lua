@@ -1,4 +1,4 @@
--- @description Media Item multitool bottom quarter
+-- @description Media Item smart tool bottom quarter
 -- @version 1.0
 -- @date 06.19.25
 -- @author seemikedrum with credit to Brendan Baker for portions of the code I took from Retooled (https://brendanpatrickbaker.com/reatooled)
