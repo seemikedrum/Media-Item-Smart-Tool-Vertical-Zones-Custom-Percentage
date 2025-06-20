@@ -1,7 +1,7 @@
 -- @description Media Item smart tool bottom quarter
 -- @version 1.0
 -- @date 06.19.25
--- @author seemikedrum with credit to Brendan Baker for portions of the code I used from Retooled (https://brendanpatrickbaker.com/reatooled)
+-- @author seemikedrum with credit to Brendan Baker for portions of the code I used from ReaTooled (https://brendanpatrickbaker.com/reatooled)
 -- @about
 -- This script gives similar functionality to ProTools' "Smart Tool."
 -- However, instead of splitting the media item into top and bottom halves, it splits the media item into a top 75% and a bottom 25% portions.
