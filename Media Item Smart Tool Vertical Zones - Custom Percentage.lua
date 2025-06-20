@@ -7,7 +7,7 @@
 -- However, instead of splitting the media item into top and bottom halves, this script splits the zones into top 75% and bottom 25% portions.
 -- It then automatically switches to the razor select tool when the mouse is hovering over the top 75% of the media item, or the move tool when hovering over the bottom 25%.
 
-function GetTopBottomItemQuarter()
+function getBottomItemQuarter()
 local itempart
 local x, y = reaper.GetMousePosition()
 
@@ -53,7 +53,7 @@ function main()
   reaper.BR_GetMouseCursorContext()
   local pos = reaper.BR_GetMouseCursorContext_Position()
   
-  GetTopBottomItemQuarter()
+  getBottomItemQuarter()
   reaper.defer(main)
 end
 
