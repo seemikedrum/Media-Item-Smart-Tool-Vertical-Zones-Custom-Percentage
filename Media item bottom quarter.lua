@@ -5,7 +5,7 @@
 -- @about
 -- This script gives similar functionality to ProTools' "Smart Tool."
 -- However, instead of splitting the media item into top and bottom halves, it splits the media item into a top 75% and a bottom 25% portions.
--- It then automatically switches to the razor select tool on the top 75%, or the move tool on the bottom 25%.
+-- It then automatically switches to the razor select tool on the top 75%, or the move tool on the bottom 25% based on the mouse verticle position over the media item.
 
 function GetTopBottomItemQuarter()
 local itempart
