@@ -28,7 +28,7 @@ if item_under_mouse then
   if item_under_mouse == test_item then
     itempart = "header"
   else
-    local test_point = math.floor( y + item_h/4 *OScoeff)
+    local test_point = math.floor( y + item_h/4 *OScoeff) -- edit the division amount if you want a different percentage for the bottom zone (i.e. /5 for 20%)
     local test_item, take = reaper.GetItemFromPoint( x, test_point, true )
     
     if item_under_mouse ~= test_item then
