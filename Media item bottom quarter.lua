@@ -1,4 +1,4 @@
--- @description Media Item smart tool bottom quarter
+-- @description Media Item Smart Tool Vertical Zones - Bottom Quarter Instead of Bottom Half
 -- @version 1.0
 -- @date 06.19.25
 -- @author seemikedrum with credit to Brendan Baker for portions of the code I used from ReaTooled (https://brendanpatrickbaker.com/reatooled)
