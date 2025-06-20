@@ -49,11 +49,6 @@ else return nil end
 
 end
 
-  
-  
-  
-  
-
 function main()
   reaper.BR_GetMouseCursorContext()
   local pos = reaper.BR_GetMouseCursorContext_Position()
@@ -76,14 +71,6 @@ reaper.atexit(exit)
 
 main()
 
-
-
-
-
-
-
-
-
 -- Switch to move tool
 function switchMoveTool()
 
@@ -95,9 +82,7 @@ function UpdateState()
   
   local is_set =
     reaper.GetMouseModifier('MM_CTX_ITEM',0) == '13 m' and -- Move item ignoring time selection
-    
     reaper.GetMouseModifier('MM_CTX_ITEMLOWER',0) == '13 m' -- Move item ignoring time selection
-
         
   if is_set ~= was_set then
     was_set=is_set
@@ -108,14 +93,10 @@ function UpdateState()
 end
 
 -- Set Mouse Modifiers for each category
-
 reaper.SetMouseModifier('MM_CTX_ITEM',0,'13 m') -- Move item ignoring time selection
-
 reaper.SetMouseModifier('MM_CTX_ITEMLOWER',0,'13 m') -- Move item ignoring time selection
 
-
 --UpdateState()
-
 reaper.Main_OnCommand(40569,0) --enable locking
 reaper.Main_OnCommand(40595,0) -- set item edges lock
 reaper.Main_OnCommand(40598,0) --set item fades lock
@@ -126,13 +107,6 @@ reaper.Main_OnCommand(40572,0) --set time selection to UNlock
 
 reaper.Main_OnCommand(42621, 0) -- clear arrange override mode
 end
-
-
-
-
-
-
-
 
 -- Switch to select tool
 function switchSelectTool()
@@ -146,9 +120,7 @@ function UpdateState()
   local is_set =
   
     reaper.GetMouseModifier('MM_CTX_ITEM',0) == '66 m' and -- Select razor edit area and time
-    
     reaper.GetMouseModifier('MM_CTX_ITEMLOWER',0) == '66 m' -- Select razor edit area and time
-
         
   if is_set ~= was_set then
     was_set=is_set
@@ -159,14 +131,10 @@ function UpdateState()
 end
 
 -- Set Mouse Modifiers for each category
-
 reaper.SetMouseModifier('MM_CTX_ITEM',0,'66 m') -- Select razor edit area and time
-
 reaper.SetMouseModifier('MM_CTX_ITEMLOWER',0,'66 m') -- Select razor edit area and time
 
-
 --UpdateState()
-
 reaper.Main_OnCommand(40569,0) --enable locking
 reaper.Main_OnCommand(40595,0) -- set item edges lock
 reaper.Main_OnCommand(40598,0) --set item fades lock
