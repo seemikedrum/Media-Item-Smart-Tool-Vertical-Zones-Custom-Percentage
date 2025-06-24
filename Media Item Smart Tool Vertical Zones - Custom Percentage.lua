@@ -7,141 +7,121 @@
 -- However, instead of splitting the media item into top and bottom halves, this script splits the zones into top 75% and bottom 25% portions.
 -- It then automatically switches to the razor select tool when the mouse is hovering over the top 75% of the media item, or the move tool when hovering over the bottom 25%.
 
-function getBottomItemQuarter()
-local itempart
-local x, y = reaper.GetMousePosition()
+-- ===== USER DEFINABLE SETTING =====
+DENOMINATOR = 5 -- 4-> the bottom quarter  3 -> bottom third, etc.
+-- ===================================
 
-local item_under_mouse = reaper.GetItemFromPoint(x,y,true)
+TOP_ACTION = 1
+BOTTOM_ACTION = 2
+INIT_ACTION = 3
 
-if item_under_mouse then
+MM_CTX_ITEMLOWER = {}
+MM_CTX_ITEMLOWER_CLK = {}
+MM_CTX_ITEMLOWER_DBLCLK = {}
 
-  local item_h = reaper.GetMediaItemInfo_Value( item_under_mouse, "I_LASTH" )
-  
-  local OScoeff = 1
-  if reaper.GetOS():match("^Win") == nil then
-    OScoeff = -1
-  end
-  
-  local test_point = math.floor( y + (item_h-1) *OScoeff)
-  local test_item, take = reaper.GetItemFromPoint( x, test_point, true )
-  
-  if item_under_mouse == test_item then
-    itempart = "header"
-  else
-    local test_point = math.floor( y + item_h/4 *OScoeff) -- edit the division amount if you want a different percentage for the bottom zone (i.e. /5 for 20%)
-    local test_item, take = reaper.GetItemFromPoint( x, test_point, true )
-    
-    if item_under_mouse ~= test_item then
-      itempart = "bottom"
+function GetTopBottomItemQuarter()
+  local itempart
+  local x, y = reaper.GetMousePosition()
+
+  local item_under_mouse = reaper.GetItemFromPoint(x, y, true)
+
+  if item_under_mouse then
+
+    local item_h = reaper.GetMediaItemInfo_Value(item_under_mouse, "I_LASTH")
+
+    local test_point = math.floor(y + (item_h - 1) * OScoeff)
+    local test_item, take = reaper.GetItemFromPoint(x, test_point, true)
+
+    if item_under_mouse == test_item then
+      itempart = "header"
     else
-      itempart = "top"
-    end
-  end
-  
-  if itempart == "top" then
-    switchSelectTool()
-  else
-    switchMoveTool()
-  end
+      local test_point = math.floor(y + item_h / DENOMINATOR * OScoeff)
+      local test_item, take = reaper.GetItemFromPoint(x, test_point, true)
 
-  return item_under_mouse, itempart
-else return nil end
+      if item_under_mouse ~= test_item then
+        itempart = "bottom"
+      else
+        itempart = "top"
+      end
+    end
+
+    return itempart
+  else
+    return nil
+  end
 
 end
 
+function setAction(action)
+  i = 0
+  if action == INIT_ACTION then
+    while i < 16 do
+      MM_CTX_ITEMLOWER[i] = reaper.GetMouseModifier('MM_CTX_ITEMLOWER', i)
+      MM_CTX_ITEMLOWER_CLK[i] = reaper.GetMouseModifier('MM_CTX_ITEMLOWER_CLK', i)
+      MM_CTX_ITEMLOWER_DBLCLK[i] = reaper.GetMouseModifier('MM_CTX_ITEMLOWER_DBLCLK', i)
+      i = i + 1
+    end
+  elseif action == TOP_ACTION then
+    while i < 16 do
+      reaper.SetMouseModifier('MM_CTX_ITEMLOWER', i, "0")
+      reaper.SetMouseModifier('MM_CTX_ITEMLOWER_CLK', i, "0")
+      reaper.SetMouseModifier('MM_CTX_ITEMLOWER_DBLCLK', i, "0")
+      i = i + 1
+    end
+  elseif action == BOTTOM_ACTION then
+    while i < 16 do
+      if i > 0 and MM_CTX_ITEMLOWER[i] == MM_CTX_ITEMLOWER[0] then
+        reaper.SetMouseModifier('MM_CTX_ITEMLOWER', i, -1)
+      else
+        reaper.SetMouseModifier('MM_CTX_ITEMLOWER', i, MM_CTX_ITEMLOWER[i])
+      end
+      if i > 0 and MM_CTX_ITEMLOWER_CLK[i] == MM_CTX_ITEMLOWER_CLK[0] then
+        reaper.SetMouseModifier('MM_CTX_ITEMLOWER_CLK', i, -1)
+      else
+        reaper.SetMouseModifier('MM_CTX_ITEMLOWER_CLK', i, MM_CTX_ITEMLOWER_CLK[i])
+      end
+      if i > 0 and MM_CTX_ITEMLOWER_DBLCLK[i] == MM_CTX_ITEMLOWER_DBLCLK[0] then
+        reaper.SetMouseModifier('MM_CTX_ITEMLOWER_DBLCLK', i, -1)
+      else
+        reaper.SetMouseModifier('MM_CTX_ITEMLOWER_DBLCLK', i, MM_CTX_ITEMLOWER_DBLCLK[i])
+      end
+      i = i + 1
+    end
+  end
+end
+
 function main()
-  reaper.BR_GetMouseCursorContext()
-  local pos = reaper.BR_GetMouseCursorContext_Position()
-  
-  getBottomItemQuarter()
+  location = GetTopBottomItemQuarter()
+  if location == "top" then
+    if last_action ~= TOP_ACTION then
+      setAction(TOP_ACTION)
+      last_action = TOP_ACTION
+    end
+  else
+    if last_action ~= BOTTOM_ACTION then
+      setAction(BOTTOM_ACTION)
+      last_action = BOTTOM_ACTION
+    end
+  end
   reaper.defer(main)
 end
 
 function exit()
-  local is_new_value,filename,sectionID,cmdID,mode,resolution,val = reaper.get_action_context()
+  setAction(BOTTOM_ACTION)
+  local is_new_value, filename, sectionID, cmdID, mode, resolution, val = reaper.get_action_context()
   reaper.SetToggleCommandState(sectionID, cmdID, 0)
   reaper.RefreshToolbar2(sectionID, cmdID)
 end
 
-local is_new_value,filename,sectionID,cmdID,mode,resolution,val = reaper.get_action_context()
+local is_new_value, filename, sectionID, cmdID, mode, resolution, val = reaper.get_action_context()
 reaper.SetToggleCommandState(sectionID, cmdID, 1)
 reaper.RefreshToolbar2(sectionID, cmdID)
 
 reaper.atexit(exit)
-
+OScoeff = 1
+if reaper.GetOS():match("^Win") == nil then
+  OScoeff = -1
+end
+setAction(INIT_ACTION)
+last_action = INIT_ACTION
 main()
-
--- Switch to move tool
-function switchMoveTool()
-
-was_set=-1
-
-function UpdateState()
-  local MM_CTX_ITEM_default=reaper.GetMouseModifier('MM_CTX_ITEM',0)
-  local MM_CTX_ITEMLOWER_default=reaper.GetMouseModifier('MM_CTX_ITEMLOWER',0)
-  
-  local is_set =
-    reaper.GetMouseModifier('MM_CTX_ITEM',0) == '13 m' and -- Move item ignoring time selection
-    reaper.GetMouseModifier('MM_CTX_ITEMLOWER',0) == '13 m' -- Move item ignoring time selection
-        
-  if is_set ~= was_set then
-    was_set=is_set
-    reaper.set_action_options(3 | (is_set and 4 or 8))
-  end
-  reaper.RefreshToolbar(0)
-  reaper.defer(UpdateState)
-end
-
--- Set Mouse Modifiers for each category
-reaper.SetMouseModifier('MM_CTX_ITEM',0,'13 m') -- Move item ignoring time selection
-reaper.SetMouseModifier('MM_CTX_ITEMLOWER',0,'13 m') -- Move item ignoring time selection
-
---UpdateState()
-reaper.Main_OnCommand(40569,0) --enable locking
-reaper.Main_OnCommand(40595,0) -- set item edges lock
-reaper.Main_OnCommand(40598,0) --set item fades lock
-reaper.Main_OnCommand(41852,0) --set item stretch markers lock
-reaper.Main_OnCommand(41849,0) --set item envelope
-reaper.Main_OnCommand(40572,0) --set time selection to UNlock
-  --reaper.Main_OnCommand(40571,0) --set time selection to lock  
-
-reaper.Main_OnCommand(42621, 0) -- clear arrange override mode
-end
-
--- Switch to select tool
-function switchSelectTool()
-
-was_set=-1
-
-function UpdateState()
-  local MM_CTX_ITEM_default=reaper.GetMouseModifier('MM_CTX_ITEM',0)
-  local MM_CTX_ITEMLOWER_default=reaper.GetMouseModifier('MM_CTX_ITEMLOWER',0)
-  
-  local is_set =
-  
-    reaper.GetMouseModifier('MM_CTX_ITEM',0) == '66 m' and -- Select razor edit area and time
-    reaper.GetMouseModifier('MM_CTX_ITEMLOWER',0) == '66 m' -- Select razor edit area and time
-        
-  if is_set ~= was_set then
-    was_set=is_set
-    reaper.set_action_options(3 | (is_set and 4 or 8))
-  end
-  reaper.RefreshToolbar(0)
-  reaper.defer(UpdateState)
-end
-
--- Set Mouse Modifiers for each category
-reaper.SetMouseModifier('MM_CTX_ITEM',0,'66 m') -- Select razor edit area and time
-reaper.SetMouseModifier('MM_CTX_ITEMLOWER',0,'66 m') -- Select razor edit area and time
-
---UpdateState()
-reaper.Main_OnCommand(40569,0) --enable locking
-reaper.Main_OnCommand(40595,0) -- set item edges lock
-reaper.Main_OnCommand(40598,0) --set item fades lock
-reaper.Main_OnCommand(41852,0) --set item stretch markers lock
-reaper.Main_OnCommand(41849,0) --set item envelope
-reaper.Main_OnCommand(40572,0) --set time selection to UNlock
-  --reaper.Main_OnCommand(40571,0) --set time selection to lock
-
-reaper.Main_OnCommand(42621, 0) -- clear arrange override mode
-end
